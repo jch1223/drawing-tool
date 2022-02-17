@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CirclePicker } from "react-color";
 import { Stage, Layer, Line } from "react-konva";
 import styled from "styled-components";
@@ -14,37 +14,76 @@ function App() {
   const [lines, setLines] = useState([]);
 
   const isDrawing = useRef(false);
+  const isSpline = useRef(false);
+
+  useEffect(() => {
+    console.log(lines);
+  }, [lines]);
 
   const onMouseDownHandler = (e) => {
-    const { x, y } = e.target.getStage().getPointerPosition();
-
     isDrawing.current = true;
 
+    const { x, y } = e.target.getStage().getPointerPosition();
+
     if (toolType === "line") {
-      setLines([
+      return setLines([
         ...lines,
         { toolType, color, lineThickness, startPoints: [x, y], endPoints: [] },
       ]);
     }
-  };
 
-  const onMouseMoveHandler = (e) => {
-    if (!isDrawing.current) return;
+    if (toolType === "spline") {
+      if (!isSpline.current) {
+        isSpline.current = true;
 
-    if (toolType === "line") {
+        return setLines([
+          ...lines,
+          {
+            toolType,
+            color,
+            lineThickness,
+            startPoints: [x, y],
+            middlePoints: [],
+            endPoints: [],
+          },
+        ]);
+      }
+
+      isDrawing.current = false;
+
       const newLines = [...lines];
       const lastLine = newLines[newLines.length - 1];
-      const { x, y } = e.target.getStage().getPointerPosition();
 
-      lastLine.endPoints = [x, y];
+      lastLine.middlePoints = [x, y];
       newLines[newLines.length - 1] = lastLine;
 
       setLines(newLines);
     }
   };
 
+  const onMouseMoveHandler = (e) => {
+    if (!isDrawing.current) return;
+
+    const newLines = [...lines];
+    const lastLine = newLines[newLines.length - 1];
+    const { x, y } = e.target.getStage().getPointerPosition();
+
+    lastLine.endPoints = [x, y];
+    newLines[newLines.length - 1] = lastLine;
+
+    setLines(newLines);
+  };
+
   const onMouseUpHandler = (e) => {
     isDrawing.current = false;
+
+    if (toolType === "spline") {
+      const lastLine = lines[lines.length - 1];
+
+      if (lastLine.middlePoints.length || !lastLine.endPoints.length) {
+        isSpline.current = false;
+      }
+    }
   };
 
   return (
@@ -68,11 +107,22 @@ function App() {
                     strokeWidth={line.lineThickness}
                     lineCap="round"
                     lineJoin="round"
-                    globalCompositeOperation={
-                      line.toolType === "eraser"
-                        ? "destination-out"
-                        : "source-over"
-                    }
+                  />
+                );
+              case "spline":
+                return (
+                  <Line
+                    key={i}
+                    points={[
+                      ...line.startPoints,
+                      ...line.middlePoints,
+                      ...line.endPoints,
+                    ]}
+                    stroke={line.color}
+                    strokeWidth={line.lineThickness}
+                    lineCap="round"
+                    lineJoin="round"
+                    tension={0.5}
                   />
                 );
 
