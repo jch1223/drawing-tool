@@ -1,20 +1,87 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { CirclePicker } from "react-color";
-import { Stage, Layer } from "react-konva";
+import { Stage, Layer, Line } from "react-konva";
 import styled from "styled-components";
 
 import Button from "./components/Buttons";
+
 import { COLORS, TYPES } from "./constants/tools";
 
 function App() {
   const [lineThickness, setLineThickness] = useState(5);
   const [color, setColor] = useState("#f44336");
   const [toolType, setToolType] = useState("line");
+  const [lines, setLines] = useState([]);
+
+  const isDrawing = useRef(false);
+
+  const onMouseDownHandler = (e) => {
+    const { x, y } = e.target.getStage().getPointerPosition();
+
+    isDrawing.current = true;
+
+    if (toolType === "line") {
+      setLines([
+        ...lines,
+        { toolType, color, lineThickness, startPoints: [x, y], endPoints: [] },
+      ]);
+    }
+  };
+
+  const onMouseMoveHandler = (e) => {
+    if (!isDrawing.current) return;
+
+    if (toolType === "line") {
+      const newLines = [...lines];
+      const lastLine = newLines[newLines.length - 1];
+      const { x, y } = e.target.getStage().getPointerPosition();
+
+      lastLine.endPoints = [x, y];
+      newLines[newLines.length - 1] = lastLine;
+
+      setLines(newLines);
+    }
+  };
+
+  const onMouseUpHandler = (e) => {
+    isDrawing.current = false;
+  };
 
   return (
     <MainStyled>
-      <StageStyled width={500} height={500}>
-        <Layer></Layer>
+      <StageStyled
+        width={500}
+        height={500}
+        onMouseDown={onMouseDownHandler}
+        onMouseMove={onMouseMoveHandler}
+        onMouseUp={onMouseUpHandler}
+      >
+        <Layer>
+          {lines.map((line, i) => {
+            switch (line.toolType) {
+              case "line":
+                return (
+                  <Line
+                    key={i}
+                    points={[...line.startPoints, ...line.endPoints]}
+                    stroke={line.color}
+                    strokeWidth={line.lineThickness}
+                    lineCap="round"
+                    lineJoin="round"
+                    globalCompositeOperation={
+                      line.toolType === "eraser"
+                        ? "destination-out"
+                        : "source-over"
+                    }
+                  />
+                );
+
+              default:
+                console.error("유효한 tool type이 아닙니다.");
+                break;
+            }
+          })}
+        </Layer>
       </StageStyled>
 
       <div className="tools">
@@ -22,6 +89,7 @@ function App() {
           {TYPES.map((type) => {
             return (
               <Button
+                key={type.en}
                 value={type.en}
                 checked={toolType === type.en}
                 onClick={(e) => setToolType(e.target.value)}
@@ -39,7 +107,7 @@ function App() {
             value={lineThickness}
             min={5}
             max={50}
-            onChange={(e) => setLineThickness(e.target.value)}
+            onChange={(e) => setLineThickness(Number(e.target.value))}
           />
           {lineThickness}px
         </div>
@@ -47,7 +115,7 @@ function App() {
           <CirclePicker
             color={color}
             colors={COLORS}
-            onChangeComplete={setColor}
+            onChangeComplete={(color) => setColor(color.hex)}
           />
         </div>
       </div>
