@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { CirclePicker } from "react-color";
-import { Stage, Layer, Line } from "react-konva";
+import { Stage, Layer } from "react-konva";
 import styled from "styled-components";
-import { css } from "styled-components";
+
+import Button from "./components/Buttons";
+import { COLORS, TYPES } from "./constants/tools";
 
 function App() {
   const [lineThickness, setLineThickness] = useState(5);
   const [color, setColor] = useState("#f44336");
-  const [type, setType] = useState("line"); // spline, circle, rect, 다각형
-
-  const onLineThicknessChangeHandler = (e) => {
-    setLineThickness(e.target.value);
-  };
+  const [toolType, setToolType] = useState("line");
 
   return (
     <MainStyled>
@@ -20,11 +18,20 @@ function App() {
       </StageStyled>
 
       <div className="tools">
-        <ButtonStyled checked={type === "line"}>직선</ButtonStyled>
-        <ButtonStyled>곡선</ButtonStyled>
-        <ButtonStyled>원</ButtonStyled>
-        <ButtonStyled>직사각형</ButtonStyled>
-        <ButtonStyled>다각형</ButtonStyled>
+        <div>
+          {TYPES.map((type) => {
+            return (
+              <Button
+                value={type.en}
+                checked={toolType === type.en}
+                onClick={(e) => setToolType(e.target.value)}
+              >
+                {type.ko}
+              </Button>
+            );
+          })}
+        </div>
+
         <div>
           선 두께 :
           <input
@@ -32,21 +39,14 @@ function App() {
             value={lineThickness}
             min={5}
             max={50}
-            onChange={onLineThicknessChangeHandler}
+            onChange={(e) => setLineThickness(e.target.value)}
           />
           {lineThickness}px
         </div>
         <div>
           <CirclePicker
             color={color}
-            colors={[
-              "#f44336",
-              "#e91e63",
-              "#9c27b0",
-              "#673ab7",
-              "#3f51b5",
-              "#2196f3",
-            ]}
+            colors={COLORS}
             onChangeComplete={setColor}
           />
         </div>
@@ -54,24 +54,6 @@ function App() {
     </MainStyled>
   );
 }
-
-const ButtonStyled = styled.button`
-  border: 1px solid #2196f3;
-  border-radius: 3px;
-  background: none;
-  font-weight: bold;
-
-  ${({ checked }) => {
-    return checked
-      ? css`
-          background-color: #2196f3;
-          color: #ffffff;
-        `
-      : css`
-          color: #2196f3;
-        `;
-  }}
-`;
 
 const StageStyled = styled(Stage)`
   margin: 50px;
