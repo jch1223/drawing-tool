@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CirclePicker } from "react-color";
-import { Stage, Layer, Line, Circle } from "react-konva";
+import { Stage, Layer, Line, Circle, Rect } from "react-konva";
 import styled from "styled-components";
 
 import Button from "./components/Buttons";
@@ -61,6 +61,19 @@ function App() {
     }
 
     if (toolType === "circle") {
+      return setLines([
+        ...lines,
+        {
+          toolType,
+          color,
+          lineThickness,
+          startPoints: [x, y],
+          endPoints: [x, y],
+        },
+      ]);
+    }
+
+    if (toolType === "rect") {
       return setLines([
         ...lines,
         {
@@ -144,10 +157,24 @@ function App() {
                     key={i}
                     x={(line.startPoints[0] + line.endPoints[0]) / 2}
                     y={(line.startPoints[1] + line.endPoints[1]) / 2}
-                    radius={
+                    radius={Math.max(
                       Math.abs(line.startPoints[0] - line.endPoints[0]) /
-                      Math.PI
-                    }
+                        Math.PI,
+                      Math.abs(line.startPoints[0] - line.endPoints[0]) /
+                        Math.PI
+                    )}
+                    stroke={line.color}
+                    strokeWidth={line.lineThickness}
+                  />
+                );
+              case "rect":
+                return (
+                  <Rect
+                    key={i}
+                    x={Math.min(line.startPoints[0], line.endPoints[0])}
+                    y={Math.min(line.startPoints[1], line.endPoints[1])}
+                    width={Math.abs(line.startPoints[0] - line.endPoints[0])}
+                    height={Math.abs(line.startPoints[1] - line.endPoints[1])}
                     stroke={line.color}
                     strokeWidth={line.lineThickness}
                   />
