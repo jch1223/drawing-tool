@@ -87,20 +87,11 @@ function App() {
       return setLines(newLines);
     }
 
-    if (toolType === "circle" || toolType === "rect") {
-      return setLines([
-        ...lines,
-        {
-          toolType,
-          color,
-          lineThickness,
-          startPoints: [x, y],
-          endPoints: [x, y],
-        },
-      ]);
-    }
-
-    if (toolType === "regularPolygon") {
+    if (
+      toolType === "circle" ||
+      toolType === "rect" ||
+      toolType === "regularPolygon"
+    ) {
       return setLines([
         ...lines,
         {
