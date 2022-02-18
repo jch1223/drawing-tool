@@ -7,6 +7,8 @@ import Button from "./components/Buttons";
 
 import { COLORS, TYPES } from "./constants/tools";
 
+const HISTORY_LENGTH = 40;
+
 function App() {
   const [lineThickness, setLineThickness] = useState(5);
   const [color, setColor] = useState("#f44336");
@@ -23,13 +25,6 @@ function App() {
   const historyStep = useRef(history.length - 1);
 
   useEffect(() => {
-    console.log("h", history);
-  }, [history]);
-  useEffect(() => {
-    console.log("l", lines);
-  }, [lines]);
-
-  useEffect(() => {
     localStorage.setItem("lines", JSON.stringify(lines));
   }, [lines]);
 
@@ -39,7 +34,6 @@ function App() {
     }
 
     historyStep.current -= 1;
-    console.log(history);
     setLines(history[historyStep.current]);
   };
 
@@ -141,13 +135,23 @@ function App() {
 
       if (lastLine.middlePoints.length || !lastLine.endPoints.length) {
         isSpline.current = false;
+        return;
       }
     }
 
+    addHistory(HISTORY_LENGTH, lines);
+  };
+
+  const addHistory = (max, data) => {
     const newHistory = history.slice(0, historyStep.current + 1);
 
-    setHistory([...newHistory, lines]);
-    historyStep.current += 1;
+    if (newHistory.length < max) {
+      historyStep.current += 1;
+    } else {
+      newHistory.shift();
+    }
+
+    setHistory([...newHistory, data]);
   };
 
   return (
@@ -253,7 +257,14 @@ function App() {
               </Button>
             );
           })}
-          <Button onClick={(e) => setLines([])}>초기화</Button>
+          <Button
+            onClick={(e) => {
+              setLines([]);
+              addHistory(HISTORY_LENGTH, []);
+            }}
+          >
+            초기화
+          </Button>
         </div>
 
         <div>
