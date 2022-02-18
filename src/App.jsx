@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CirclePicker } from "react-color";
-import { Stage, Layer, Line } from "react-konva";
+import { Stage, Layer, Line, Circle } from "react-konva";
 import styled from "styled-components";
 
 import Button from "./components/Buttons";
@@ -57,7 +57,20 @@ function App() {
       lastLine.middlePoints = [x, y];
       newLines[newLines.length - 1] = lastLine;
 
-      setLines(newLines);
+      return setLines(newLines);
+    }
+
+    if (toolType === "circle") {
+      return setLines([
+        ...lines,
+        {
+          toolType,
+          color,
+          lineThickness,
+          startPoints: [x, y],
+          endPoints: [x, y],
+        },
+      ]);
     }
   };
 
@@ -125,6 +138,20 @@ function App() {
                     tension={0.5}
                   />
                 );
+              case "circle":
+                return (
+                  <Circle
+                    key={i}
+                    x={(line.startPoints[0] + line.endPoints[0]) / 2}
+                    y={(line.startPoints[1] + line.endPoints[1]) / 2}
+                    radius={
+                      Math.abs(line.startPoints[0] - line.endPoints[0]) /
+                      Math.PI
+                    }
+                    stroke={line.color}
+                    strokeWidth={line.lineThickness}
+                  />
+                );
 
               default:
                 console.error("유효한 tool type이 아닙니다.");
@@ -151,7 +178,15 @@ function App() {
         </div>
 
         <div>
-          선 두께 :
+          <CirclePicker
+            color={color}
+            colors={COLORS}
+            onChangeComplete={(color) => setColor(color.hex)}
+          />
+        </div>
+
+        <div>
+          선 두께:
           <input
             type="range"
             value={lineThickness}
@@ -160,13 +195,6 @@ function App() {
             onChange={(e) => setLineThickness(Number(e.target.value))}
           />
           {lineThickness}px
-        </div>
-        <div>
-          <CirclePicker
-            color={color}
-            colors={COLORS}
-            onChangeComplete={(color) => setColor(color.hex)}
-          />
         </div>
       </div>
     </MainStyled>
