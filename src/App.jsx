@@ -14,17 +14,44 @@ function App() {
   const [lines, setLines] = useState(
     JSON.parse(localStorage.getItem("lines")) || []
   );
+  const [history, setHistory] = useState(
+    [JSON.parse(localStorage.getItem("lines"))] || []
+  );
 
   const isDrawing = useRef(false);
   const isSpline = useRef(false);
+  const historyStep = useRef(history.length - 1);
 
   useEffect(() => {
-    console.log(lines);
+    console.log("h", history);
+  }, [history]);
+  useEffect(() => {
+    console.log("l", lines);
   }, [lines]);
 
   useEffect(() => {
     localStorage.setItem("lines", JSON.stringify(lines));
   }, [lines]);
+
+  const undoHandler = () => {
+    if (historyStep.current === 0) {
+      return;
+    }
+
+    historyStep.current -= 1;
+    console.log(history);
+    setLines(history[historyStep.current]);
+  };
+
+  const redoHandler = () => {
+    if (historyStep.current === history.length - 1) {
+      return;
+    }
+
+    historyStep.current += 1;
+
+    setLines(history[historyStep.current]);
+  };
 
   const onMouseDownHandler = (e) => {
     isDrawing.current = true;
@@ -116,6 +143,11 @@ function App() {
         isSpline.current = false;
       }
     }
+
+    const newHistory = history.slice(0, historyStep.current + 1);
+
+    setHistory([...newHistory, lines]);
+    historyStep.current += 1;
   };
 
   return (
@@ -222,6 +254,11 @@ function App() {
             );
           })}
           <Button onClick={(e) => setLines([])}>초기화</Button>
+        </div>
+
+        <div>
+          <Button onClick={undoHandler}>뒤로</Button>
+          <Button onClick={redoHandler}>앞으로</Button>
         </div>
 
         <div>
