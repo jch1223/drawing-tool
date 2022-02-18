@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CirclePicker } from "react-color";
-import { Stage, Layer, Line, Circle, Rect } from "react-konva";
+import { Stage, Layer, Line, Circle, Rect, RegularPolygon } from "react-konva";
 import styled from "styled-components";
 
 import Button from "./components/Buttons";
@@ -61,6 +61,19 @@ function App() {
     }
 
     if (toolType === "circle" || toolType === "rect") {
+      return setLines([
+        ...lines,
+        {
+          toolType,
+          color,
+          lineThickness,
+          startPoints: [x, y],
+          endPoints: [x, y],
+        },
+      ]);
+    }
+
+    if (toolType === "regularPolygon") {
       return setLines([
         ...lines,
         {
@@ -165,9 +178,24 @@ function App() {
                   />
                 );
 
+              case "regularPolygon":
+                return (
+                  <RegularPolygon
+                    key={i}
+                    x={(line.startPoints[0] + line.endPoints[0]) / 2}
+                    y={(line.startPoints[1] + line.endPoints[1]) / 2}
+                    radius={Math.max(
+                      Math.abs(line.startPoints[0] - line.endPoints[0]) / 2,
+                      Math.abs(line.startPoints[1] - line.endPoints[1]) / 2
+                    )}
+                    sides={6}
+                    stroke={line.color}
+                    strokeWidth={line.lineThickness}
+                  />
+                );
+
               default:
-                console.error("유효한 tool type이 아닙니다.");
-                break;
+                return console.error("유효한 tool type이 아닙니다.");
             }
           })}
         </Layer>
