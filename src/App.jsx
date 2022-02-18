@@ -234,7 +234,20 @@ function App() {
         </Layer>
       </StageStyled>
 
-      <div className="tools">
+      <ToolsStyled>
+        <div>
+          <Button onClick={undoHandler}>뒤로</Button>
+          <Button onClick={redoHandler}>앞으로</Button>
+          <Button
+            onClick={() => {
+              setLines([]);
+              addHistory(HISTORY_LENGTH, []);
+            }}
+          >
+            초기화
+          </Button>
+        </div>
+
         <div>
           {TYPES.map((type) => {
             return (
@@ -248,19 +261,6 @@ function App() {
               </Button>
             );
           })}
-          <Button
-            onClick={(e) => {
-              setLines([]);
-              addHistory(HISTORY_LENGTH, []);
-            }}
-          >
-            초기화
-          </Button>
-        </div>
-
-        <div>
-          <Button onClick={undoHandler}>뒤로</Button>
-          <Button onClick={redoHandler}>앞으로</Button>
         </div>
 
         <div>
@@ -282,10 +282,20 @@ function App() {
           />
           {lineThickness}px
         </div>
-      </div>
+      </ToolsStyled>
     </MainStyled>
   );
 }
+
+const ToolsStyled = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  div + div {
+    margin: 10px;
+  }
+`;
 
 const StageStyled = styled(Stage)`
   margin: 50px;
