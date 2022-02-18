@@ -11,13 +11,19 @@ function App() {
   const [lineThickness, setLineThickness] = useState(5);
   const [color, setColor] = useState("#f44336");
   const [toolType, setToolType] = useState("line");
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState(
+    JSON.parse(localStorage.getItem("lines")) || []
+  );
 
   const isDrawing = useRef(false);
   const isSpline = useRef(false);
 
   useEffect(() => {
     console.log(lines);
+  }, [lines]);
+
+  useEffect(() => {
+    localStorage.setItem("lines", JSON.stringify(lines));
   }, [lines]);
 
   const onMouseDownHandler = (e) => {
@@ -215,6 +221,7 @@ function App() {
               </Button>
             );
           })}
+          <Button onClick={(e) => setLines([])}>초기화</Button>
         </div>
 
         <div>
