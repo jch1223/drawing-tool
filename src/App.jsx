@@ -158,10 +158,8 @@ function App() {
                     x={(line.startPoints[0] + line.endPoints[0]) / 2}
                     y={(line.startPoints[1] + line.endPoints[1]) / 2}
                     radius={Math.max(
-                      Math.abs(line.startPoints[0] - line.endPoints[0]) /
-                        Math.PI,
-                      Math.abs(line.startPoints[0] - line.endPoints[0]) /
-                        Math.PI
+                      Math.abs(line.startPoints[0] - line.endPoints[0]) / 2,
+                      Math.abs(line.startPoints[1] - line.endPoints[1]) / 2
                     )}
                     stroke={line.color}
                     strokeWidth={line.lineThickness}
