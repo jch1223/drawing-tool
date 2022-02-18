@@ -60,20 +60,7 @@ function App() {
       return setLines(newLines);
     }
 
-    if (toolType === "circle") {
-      return setLines([
-        ...lines,
-        {
-          toolType,
-          color,
-          lineThickness,
-          startPoints: [x, y],
-          endPoints: [x, y],
-        },
-      ]);
-    }
-
-    if (toolType === "rect") {
+    if (toolType === "circle" || toolType === "rect") {
       return setLines([
         ...lines,
         {
