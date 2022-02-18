@@ -26,6 +26,10 @@ const ButtonStyled = styled.button`
           color: #2196f3;
         `;
   }}
+
+  & + & {
+    margin-left: 5px;
+  }
 `;
 
 export default Button;
